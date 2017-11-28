@@ -1,0 +1,92 @@
+<head>
+  <title>TDLM</title>
+</head>
+
+<body>
+  {{>index}}
+</body>
+
+
+<template name='index'>
+  {{#unless Template.subscriptionsReady}}
+    {{>loading }}
+  {{else if currentUser}}
+    {{> leaderboard}}
+  {{else}}
+    <div id='login-page'>{{> login}}</div>
+  {{/unless}}
+</template>
+
+<template name="login">
+  <!-- <h1>TDLM 🤙🚬🎵</h1> -->
+  <!-- <button id='login'>Login</button> -->
+  <div class='damntext' id='login'>login</div>
+</template>
+
+<template name='loading'>
+  <div class='damntext' id='loading'>qwerty</div>
+</template>
+
+<template name="leaderboard">
+<header class="header">
+  <div class='content-wrap d-flex flex-row'>
+
+    <div class='p-2'>
+      <h1>TDLM 🤙🚬🎵</h1>
+      <small class='discodunk'>{{tracks.count}} tunes and countin' ↻</small>
+    </div>
+
+    <div class='p-2 ml-auto align-self-center'>
+      <h5>
+        {{heckersGreeting}} {{currentUser.profile.id}}
+        <img style="background-image:url('{{ currentUser.profile.images.[0].url }}')" class="dp rounded-circle"/>
+      </h5>
+    </div>
+  </div>
+</header>
+
+
+  <ul class="the-meat list-group" style="background-color: {{bgcolorFromTrackImg}}">
+    {{#if Template.subscriptionsReady}}
+
+    <div class='content-wrap'>
+    {{#each item in tracks}}
+      {{>track item}}
+    {{/each}}
+    </div>
+
+  {{else}}
+    {{> loading}}
+  {{/if}}
+  </ul>
+</template>
+
+<template name='playIcon'>
+<img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAIAAAACACAYAAADDPmHLAAAABHNCSVQICAgIfAhkiAAAAAlwSFlzAAALEwAACxMBAJqcGAAABLlJREFUeJzt3UmIXFUYxfG/Q4xxSAiOoKAQMaIRUUTBAXERXEgTCIoDiC4cICoEN4qggiJBAg44IBIEdaErXagQFZKoSHBAFBUUDASNOEQjoSV0qtNdLsqH0qaoqvfud787nB+cdd37ndvV6Uq990BERERERERERERERERERCSYQ7wXIPFdC2wHesB+YBsw5bkgiWcj0B+SzcCZfksTa2sYXn6T/cAG4GinNYqhrYw+AE1+BK7zWaZYmWb8A9BkC3COx2IlvEnLbzILPA4sjb9kCantAWjyM3BT9FVLMF0PQJMPgfMir10CCHUA+sAB4BlgedQdSCchD0CT34Bb0SeKWbA4AE0+Bi6MtxVpw/IA9IE54AXguFgbkslYH4AmfwDrgEPjbEvGFesANPkcuCTKzmQssQ9AH5gHXgJOirA/GcHjADTZC6wHDjffpQzleQCafAVcYb1ROTjv8v+bV4FTbLcrC3mXvjDTwL3AIstNy7+8Cx+Wb4HVhvuWf3gXPSqvA6eZ7V7cCx4n+4AHgMVGM6iad7mT5Hvgapsx1Mu71DZ5C1hhMYwaeZfZNjPAI8CS8COpi3eRXbMTWBt6KDXxLjBU3gFWBp5NFbyLC5ke8BhwTNAJFc67NIvsAm4IOaSSeZdlmW3AqmCTKpR3SdaZBZ4EloUaWGm8C4qVX4Cb0TeV/8e7mNj5CDg/yOQK4V2IR+aA59AFLIB/GZ7ZDdxO5d9U9i4hhXwCXNR1kLnyHn4qmQc2Acd3G2d+vAefWvYAdwGHdRlqTrwHnmq+AC7rMNdseA869bwCnNx6uhnwHnAO2QvcQ6EXsHgPN6d8A1zZbszp8h5qjnm61aQT5T3MXHN/m2FPKsZ/XPQjvEaJZoGzGXxT2UzVH1EmbhFwp/WL6ACk7SrrF9CvgLT1ML5aSe8AaTP/4dEBSNsO6xfQAUjbZusX0L8B0tVj8Geg6buA3gHS9RARfgXE4P2JWo55otWkE+U9zJzyJXB5uzGny3uoOeRP4G4K/ZaQ93BTzjzwInBi6+lmwHvIqeYz4OIOc82G96BTy+/AHVT0F5j3wFPJHPA8FT7XwHvwKWQ7cEHXQebKe/ie+RW4hcqvGPYuwSMHgKfQPQMA/zJi533g3CCTK4R3IbHyE3BjoJkVxbsY6/SAjcCxoQZWGu+CLPMecFa4UZXJuySL/ABcE3JIJfMuK2RmgEeBo4JOqHDepYXK28AZgWdTBe/iumYHMBV8KhXxLrBt9gEPAkeGH0ldvItskzeA0w1mUSXvMifJd0S4HKs23qWOk7+A+4AjjGZQNe9yR+U14FSz3Yt7wcPyNQXejiVF3kUvTNE3ZEqRd+FN5oGXKfyWbCnyLr7P4KaMl1pvVA7Os/g9DG6zUuQFF7nwervfBJwQYX8yQuzyP6XiW7OnKFbxu4HbqOiCi1xYFz8HPIsez5Isy/L1gKYMWBSvR7RlJGTxswzunrE06g6kk1Dlb0WPac1S1+J3AddHX7UE07Z4Paq9ENNMXv67wEqPxUp4Wxi/+J3AWpdVipkpRhc/AzwMLHFaoxjbwPDy3wRW+C1NYlkDfMDg+/bTDK60We26IhEREREREREREREREREREZEC/Q2WnoXrb3I25AAAAABJRU5ErkJggg=="/>
+</template>
+
+<template name='track'>
+  <li class="list-group-item">
+  <div class="d-flex flex-row">
+    <div class="p-2 align-self-center">
+      <img src="{{ item.track.album.images.[1].url }}" crossorigin="anonymous" class="track-album rounded-circle"/>
+    </div>
+    <div class="p-2 align-self-center">
+      <span class='track-name'>{{item.track.name}}</span><br>
+      <span class='text-muted'>{{#each artist in item.track.album.artists }}{{ artist.name }}{{/each}}</span>
+      <!-- <span class='text-muted track-duration'>{{ msToDuration item.track.duration_ms }}</span> -->
+    </div>
+    <div class='p-2 ml-auto align-self-center'>
+        <div class="play-icon play-btn">{{> playIcon}}</div>
+      </div>
+    <div class='p-6 align-self-center vote-info'>
+      <div class='vote-ctn d-flex'>
+        <span class="p-2 align-self-center vote-btn">🤙</span>
+        <span class='p-2 align-self-center vote-count'>{{votes}}</span>
+      </div>
+      <!-- They say, fuck 'dat (Kendrick, 2017) -->
+      <button type="button" class="hidden btn btn-outline-primary vote-btn-down">👎</button>
+    </div>
+</div>
+  </li>
+</template>

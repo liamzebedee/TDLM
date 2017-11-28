@@ -1,0 +1,214 @@
+.dp {
+    width: 42px;
+    height: 42px;
+    margin-right: 5px;
+    background-size: cover;
+    background-position: center;
+}
+
+h1 {
+	font-weight: 900;
+	margin-bottom: 0;
+}
+
+/* I was going to call this the legend as it sits under h1, but we have another term for 'legend' ;) */
+.discodunk {
+    padding-left: 4px;
+    color: #444;
+    font-weight: 500;
+    font-size: 14px;
+    color: #505050;
+}
+
+@keyframes shucks {
+	0% {
+		transform: rotateZ(-20deg);
+	}
+	50% {
+		transform: rotateZ(0deg);
+	}
+	100% {
+		transform: rotateZ(-20deg);
+	}
+}
+
+.vote-btn {
+    font-size: 22px;
+    /* background-clip: content-box; */
+    background: transparent;
+}
+
+.vote-ctn:hover {
+    cursor: pointer;
+	background: #eee;
+}
+
+.vote-ctn:hover .vote-btn {
+	animation: shucks 250ms ease 0s infinite alternate;
+    text-shadow: 1px 1px #e6e6e6;
+}
+
+.vote-btn:focus {
+	box-shadow: none;
+}
+
+.vote-count {
+	font-weight: 800;
+}
+
+.vote-count,
+.vote-btn {
+	padding: 4px 6px !important;
+}
+
+.vote-ctn {
+	border: 1px solid #eee;
+    border-radius: 10px;
+    padding: 0 5px;
+    z-index: 10;
+    font-size: 22px;
+    user-select: none !important;
+    justify-content: center;
+}
+
+.hidden {
+	display: none;
+}
+
+
+#login-page {
+}
+.damntext {
+    font-size: 20vw;
+    text-transform: uppercase;
+    font-weight: 900;
+    text-align: center;
+    color: #eee;
+    transition: font-weight 500ms;
+}
+#login:hover {
+	transition: font-weight 500ms;
+	font-weight: 100;
+	cursor: pointer;
+}
+
+
+#login:after {
+    content: '';
+    display: block;
+    margin: auto;
+    height: 3px;
+    width: 0px;
+    background: transparent;
+    transition: width .5s ease, background-color .5s ease;
+}
+
+#login:hover:after {
+    width: 2em;
+    background: #222;
+}
+
+@keyframes shittyopacity {
+	0% {
+		opacity: 0;
+	}
+	100% {
+		opacity: 1;
+	}
+}
+
+@keyframes exp {
+	from, to { border-color: transparent }
+	  50% { border-color: orange; }
+}
+
+#loading {
+	animation: shittyopacity 500ms ease 0s infinite alternate;
+	font-weight: 900;
+}
+
+
+.track-duration {
+	margin-left: 0.5em;
+}
+
+
+.play-icon img {
+	width: 32px;
+	height: 32px;
+}
+
+.play-icon {
+	opacity: 1;
+}
+.play-icon:hover {
+	transition: opacity 150ms;
+	opacity: 0.5;
+	cursor: pointer;
+}
+
+.vote-info {
+	width: 85px;
+}
+
+.header {
+	border-bottom: 1px solid #eee;
+}
+
+.header > .content-wrap {
+	margin: 0% 10%;
+	padding: 0.5em 0;
+}
+.the-meat > .content-wrap {
+	margin: 0% 25%;
+}
+
+.the-meat.list-group {
+    background: #e26b6b;
+    transition: background 200ms;
+    padding-top: 2em;
+    padding-bottom: 3em;
+}
+
+.the-meat .content-wrap li:nth-child(1) {
+    border-top: 0;
+    border-top-left-radius: 0;
+    border-top-right-radius: 0;
+}
+
+.track-album {
+    width: 64px;
+}
+
+canvas {
+    display: none;
+}
+
+/*
+  .vote-ctn:before {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    border-radius: 50px;
+    background: currentColor;
+    content: '';
+    z-index: -1;
+    opacity: 0;
+    transition: all 0.2s cubic-bezier(.02, .01, .47, 1);
+    transform: scale(0.2);
+   }
+
+  .vote-ctn:focus {
+    box-shadow: 0 1px 8px clack - rgba(0, 0, 0, .6);
+    transition: all 0.3s cubic-bezier(.02, .01, .47, 1);
+    transform: scale(1.1);
+  }
+
+    .vote-ctn:hover:before, .vote-ctn:focus:before {
+      opacity: 0.15;
+      transition: all 0.3s cubic-bezier(.02, .01, .47, 1);
+      transform: scale(1);
+}
+*/
