@@ -7,8 +7,8 @@
 }
 
 h1 {
-	font-weight: 900;
-	margin-bottom: 0;
+    font-weight: 900;
+    margin-bottom: 0;
 }
 
 /* I was going to call this the legend as it sits under h1, but we have another term for 'legend' ;) */
@@ -21,15 +21,15 @@ h1 {
 }
 
 @keyframes shucks {
-	0% {
-		transform: rotateZ(-20deg);
-	}
-	50% {
-		transform: rotateZ(0deg);
-	}
-	100% {
-		transform: rotateZ(-20deg);
-	}
+    0% {
+        transform: rotateZ(-20deg);
+    }
+    50% {
+        transform: rotateZ(0deg);
+    }
+    100% {
+        transform: rotateZ(-20deg);
+    }
 }
 
 .vote-btn {
@@ -40,29 +40,29 @@ h1 {
 
 .vote-ctn:hover {
     cursor: pointer;
-	background: #eee;
+    background: #eee;
 }
 
 .vote-ctn:hover .vote-btn {
-	animation: shucks 250ms ease 0s infinite alternate;
+    animation: shucks 250ms ease 0s infinite alternate;
     text-shadow: 1px 1px #e6e6e6;
 }
 
 .vote-btn:focus {
-	box-shadow: none;
+    box-shadow: none;
 }
 
 .vote-count {
-	font-weight: 800;
+    font-weight: 800;
 }
 
 .vote-count,
 .vote-btn {
-	padding: 4px 6px !important;
+    padding: 4px 6px !important;
 }
 
 .vote-ctn {
-	border: 1px solid #eee;
+    border: 1px solid #eee;
     border-radius: 10px;
     padding: 0 5px;
     z-index: 10;
@@ -72,7 +72,7 @@ h1 {
 }
 
 .hidden {
-	display: none;
+    display: none;
 }
 
 
@@ -87,9 +87,9 @@ h1 {
     transition: font-weight 500ms;
 }
 #login:hover {
-	transition: font-weight 500ms;
-	font-weight: 100;
-	cursor: pointer;
+    transition: font-weight 500ms;
+    font-weight: 100;
+    cursor: pointer;
 }
 
 
@@ -109,58 +109,60 @@ h1 {
 }
 
 @keyframes shittyopacity {
-	0% {
-		opacity: 0;
-	}
-	100% {
-		opacity: 1;
-	}
+    0% {
+        opacity: 0;
+    }
+    100% {
+        opacity: 1;
+    }
 }
 
 @keyframes exp {
-	from, to { border-color: transparent }
-	  50% { border-color: orange; }
+    from, to { border-color: transparent }
+      50% { border-color: orange; }
 }
 
 #loading {
-	animation: shittyopacity 500ms ease 0s infinite alternate;
-	font-weight: 900;
+    animation: shittyopacity 500ms ease 0s infinite alternate;
+    font-weight: 900;
 }
 
 
 .track-duration {
-	margin-left: 0.5em;
+    margin-left: 0.5em;
 }
 
 
 .play-icon img {
-	width: 32px;
-	height: 32px;
+    width: 32px;
+    height: 32px;
 }
 
 .play-icon {
-	opacity: 1;
+    opacity: 1;
 }
 .play-icon:hover {
-	transition: opacity 150ms;
-	opacity: 0.5;
-	cursor: pointer;
+    transition: opacity 150ms;
+    opacity: 0.5;
+    cursor: pointer;
 }
 
 .vote-info {
-	width: 85px;
+    width: 85px;
 }
 
 .header {
-	border-bottom: 1px solid #eee;
+    /*border-bottom: 1px solid #eee;*/
+    background: white;
+    box-shadow: #eee 1px 1px 2px;
 }
 
 .header > .content-wrap {
-	margin: 0% 10%;
-	padding: 0.5em 0;
+    margin: 0% 10%;
+    padding: 0.5em 0;
 }
 .the-meat > .content-wrap {
-	margin: 0% 25%;
+    margin: 0% 25%;
 }
 
 .the-meat.list-group {
@@ -182,6 +184,10 @@ h1 {
 
 canvas {
     display: none;
+}
+
+.track-name {
+    cursor: pointer;
 }
 
 /*
@@ -212,3 +218,33 @@ canvas {
       transform: scale(1);
 }
 */
+
+.waveform {
+    text-align: center;
+    opacity: 0.5;
+    top: 6px;
+    position: relative;
+}
+.waveform > svg {
+  height:       140px;
+  width:        880px;
+}
+.waveform > div div.bar {
+  position:          absolute;
+}
+.waveform .svg g rect {
+  opacity:  0.5;
+}
+.axis {
+  position: absolute;
+  top:      4px;
+  left:    -40px;
+}
+.axis g path.domain {
+  display: none;
+}
+.axis g text {
+  font-family: 'Roboto', sans-serif;
+  opacity:      0.5;
+  font-size:    10px;
+}

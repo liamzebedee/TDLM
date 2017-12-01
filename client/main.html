@@ -28,7 +28,9 @@
 </template>
 
 <template name="leaderboard">
-<header class="header">
+
+
+<header class="header sticky-top">
   <div class='content-wrap d-flex flex-row'>
 
     <div class='p-2'>
@@ -45,7 +47,20 @@
   </div>
 </header>
 
+  <div class='waveform'>
+  </div>
 
+<div class='flex-row content-wrap d-flex'>
+  <button class='btn btn-primary' id='nextHistory'>Next</button>
+<ul>
+{{#each item in userListeningHistory }}
+<li>{{ item }}</li>
+{{/each}}
+</ul>
+
+</div>
+
+  
   <ul class="the-meat list-group" style="background-color: {{bgcolorFromTrackImg}}">
     {{#if Template.subscriptionsReady}}
 
@@ -82,10 +97,11 @@
     <div class='p-6 align-self-center vote-info'>
       <div class='vote-ctn d-flex'>
         <span class="p-2 align-self-center vote-btn">🤙</span>
+        
+        <!-- They say, fuck 'dat (Kendrick, 2017) -->
+        <span class="p-2 align-self-center hidden vote-btn-down">👎</span>
         <span class='p-2 align-self-center vote-count'>{{votes}}</span>
       </div>
-      <!-- They say, fuck 'dat (Kendrick, 2017) -->
-      <button type="button" class="hidden btn btn-outline-primary vote-btn-down">👎</button>
     </div>
 </div>
   </li>

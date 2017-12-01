@@ -1,5 +1,6 @@
 import { Template } from 'meteor/templating';
 import { ReactiveVar } from 'meteor/reactive-var';
+import { Accounts } from 'meteor/accounts-base'
 import { Session } from 'meteor/session';
 import './main.html';
 import 'hover.css/css/hover-min.css';
@@ -25,17 +26,20 @@ import {
 
 window.Tracks = Tracks
 
+const CURRENT_PERMISSIONS_NEEDED = ['user-read-email', 'playlist-read-collaborative', 'user-modify-playback-state', 'user-read-playback-state', 'user-read-recently-played'];
+
 function login() {
 	var options = {
 		showDialog: true,
 		loginStyle: 'redirect',
-		requestPermissions: ['user-read-email', 'playlist-read-collaborative', 'user-modify-playback-state'] // Spotify access scopes.
+		requestPermissions: CURRENT_PERMISSIONS_NEEDED
 	};
 
 	Meteor.loginWithSpotify(options, function(err) {
 		console.log(err || "No error");
+
 		if(!err) {
-			console.log(Meteor.user())
+			window.localStorage.setItem("lastRequestPermissions", CURRENT_PERMISSIONS_NEEDED);
 		}
 	});
 }
@@ -81,12 +85,32 @@ Template.leaderboard.onCreated(function(){
 	Session.set('bgcolorFromTrackImg', "#e26b6b");
 
 	Meteor.call('updatePlaylist');
+
 	Tracker.autorun(() => {
 		Meteor.subscribe('playlist-tracks');
+
 		changeBackgroundBasedOnDominantColourOfLatestTrack().then(color => {
 			Session.set('bgcolorFromTrackImg', color);
 		})
 	});
+})
+
+Template.leaderboard.events({
+	'click #nextHistory'(event, instance) {
+		let history = Session.get('userListeningHistory');
+
+		let before = null;
+		if(history) {
+			before = history.cursors.before;
+		}
+
+		// curl -X GET "" -H "Accept: application/json" -H "Authorization: Bearer BQCVJiDIvNuBnbry-Y2lD0pRXoM2B75Y2eeliY-1A8BZrsT2jsk_p9CyDH8PII2BwE_HBmIJhclY_0T4KROIXlmJPPSDNzLU-AUn-9UwqSLodblmbcnb7hdRUFrfNXu-8I5Cu0zn_BA47UwQr9XwNZ5y"
+		Meteor.call('getListeningHistory', null, before, (err, res) => {
+			if(err) return new Error(err);
+			let hist = res;
+			Session.set('userListeningHistory', hist)
+		})
+	}
 })
 
 Template.leaderboard.helpers({
@@ -99,20 +123,137 @@ Template.leaderboard.helpers({
 	},
 	bgcolorFromTrackImg() {
 		return Session.get('bgcolorFromTrackImg')
+	},
+	userListeningHistory() {
+		return Session.get('userListeningHistory').items.map(item => {
+			return item.track.name
+		})
 	}
 })
 
+const SECRET_DEVMODE_FEATURES = location.hash == '#dev';
+
+
+var waveformNode = null;
+function renderWaveform(data) {
+	var lastEl = null;
+	let segmentsData = data.segments.map(seg => [seg.loudness_start, seg.loudness_max]).filter((el, i, arr) => {
+		if(i % 2) return false;
+		if(i % 3) return false;
+		return true;
+	}).reduce((pre, cur) => pre.concat(cur));
+
+	render(segmentsData)
+
+	function render(data) {
+		// http://docs.echonest.com.s3-website-us-east-1.amazonaws.com/_static/AnalyzeDocumentation.pdf
+		var width = 880,
+		height    = 240;
+	let container = d3.select('.waveform');
+
+	container.select("svg").remove();
+	waveformNode = container.append("svg")
+	    .attr("class","chart")
+	    .attr("width", width)
+	    .attr("height", height);
+
+  var y = d3.scale.linear().range([height, -height]);
+  var max_val = d3.max(data, function(d) { return d; });
+  var min_val = d3.min(data, function(d) { return d; });
+  y.domain([min_val, max_val]);
+  var x = d3.scale.linear().domain([0, data.length]);
+  var bar_width = width / data.length;
+
+  var chart = waveformNode.attr("width", width).attr("height", height);
+
+
+
+  
+  
+
+  var bar = chart.selectAll("g")
+    .data(data)
+    .enter().append("g") // svg "group"
+    .attr("transform", function(d, i) {
+      return "translate(" + i * bar_width + ",0)";
+    })
+    .on("mouseover", function(d, i) {
+    	rect.filter((d, j) => { return j <= i }).attr('fill', 'red')
+    })
+	.on("mouseout", function(d, i) {
+        rect.filter((d, j) => { return j <= i }).attr('fill', '#000')
+    });
+
+
+// var vertical = container.append("div")
+//         .attr("class", "remove")
+//         .style("position", "absolute")
+//         .style("z-index", "19")
+//         .style("width", "1px")
+//         .style("height", "380px")
+//         .style("top", "10px")
+//         .style("bottom", "30px")
+//         .style("left", "0px")
+//         .style("background", "green");
+        
+  // container.on("mousemove", function(){ 
+  //        mousex = d3.mouse(this);
+  //        mousex = mousex[0];
+  //        vertical.style("left", mousex + "px" )
+  //        // debugger
+  //    })
+  //     .on("mouseover", function(){  
+  //        mousex = d3.mouse(this);
+  //        mousex = mousex[0];
+  //        vertical.style("left", mousex + "px")});
+
+
+
+  var rect = bar.append("rect")
+    .attr("y", function(d) {
+      var yv = height - Math.abs(y(d) / 2) - height / 2 + 2;
+      return yv;
+    })
+    .attr("height", function(d) {
+      return Math.abs(y(d)); 
+  	})
+    .attr("width", bar_width )
+
+  d3.select(".svg").append("svg")
+    .attr("class", "axis")
+    .attr("width", 60)
+    .attr("height", height)
+    .append("g")
+    .attr("transform", "translate(40," + (height/2) + ")" )
+	}
+}
+
+
 Template.track.events({
-	'click .vote-btn'(event, instance) {
+	'click .track-name'(event, instance) {
+		let trackId = instance.data._id;
+		Meteor.call('getTrackAudioAnalysis', trackId, (err, analysis) => {
+			if(err) throw new Error(err);
+			renderWaveform(analysis)
+			console.log(analysis)
+		})
+	},
+	'click .vote-ctn'(event, instance) {
 		let trackId = instance.data._id;
 		Meteor.call('upvote', trackId);
 	},
 	'click .vote-btn-down'(event, instance) {
 		let trackId = instance.data._id;
 		Meteor.call('downvote', trackId);
+		event.stopPropagation();
 	},
 	'click .play-btn'(event, instance) {
 		let trackUri = instance.data.item.track.uri;
+
+		var colorThief = new ColorThief();
+		let domColourRgb = colorThief.getColor(instance.find('.track-album'));
+		Session.set('bgcolorFromTrackImg', `rgb(${domColourRgb[0]}, ${domColourRgb[1]}, ${domColourRgb[2]})`);
+
 		Meteor.call('playSongOnUsersDevice', trackUri)
 	},
 	'mouseover .track-album'(event, instance) {
@@ -137,6 +278,15 @@ Template.track.helpers({
 	}
 })
 
+Accounts.onLogin(() => {
+	Meteor.call('checkUserPermissionsUpToDate', (err, upToDate) => {
+		if(err) throw new Error(err)
+		if(!upToDate) {
+			Meteor.call('updateUserPermissions')
+			Meteor.logout()
+		}
+	})
+})
 
 Template.login.events({
 	'click #login'(event, instance) {

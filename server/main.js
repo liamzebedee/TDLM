@@ -1,5 +1,6 @@
 import { Meteor } from 'meteor/meteor';
-import { HTTP } from 'meteor/http'
+import { HTTP } from 'meteor/http';
+import { Accounts } from 'meteor/accounts-base'
 import {
 	TDLM_KYRYL_ID, 
 	TLDM_PLAYLIST_ID,
@@ -9,11 +10,15 @@ import {
 const SPOTIFY_CLIENT_ID = Meteor.settings.SPOTIFY_CLIENT_ID;
 const SPOTIFY_SECRET_KEY = Meteor.settings.SPOTIFY_SECRET_KEY;
 
+const LAST_UPDATE_TO_PERMISSIONS = 1511966403842;
+
 function refreshOauthTokenMaybe() {
-	let timeLeft = new Date(Meteor.user().services.spotify.expiresAt - new Date);
-	if(timeLeft.getMinutes() < 20) {
-		refreshOauthStupidSillyOauth(Meteor.user().services.spotify.refreshToken)
-	}
+	refreshOauthStupidSillyOauth(Meteor.user().services.spotify.refreshToken)
+	
+	// let timeLeft = new Date(Meteor.user().services.spotify.expiresAt - new Date);
+	// if(timeLeft.getMinutes() < 20) {
+	// 	refreshOauthStupidSillyOauth(Meteor.user().services.spotify.refreshToken)
+	// }
 }
 
 function getPlaylist() {
@@ -32,6 +37,19 @@ function playTrack(trackId) {
 	refreshOauthTokenMaybe()
 	// {"uris":
 	// ["spotify:track:4iV5W9uYEdYUVa79Axb7Rh", "spotify:track:1301WleyT98MSxVHPZCA6M"]}
+	fetch(`https://api.spotify.com/v1/me/player/play`, {
+		method: 'PUT',
+		headers: {
+			'Authorization': `Bearer ${Meteor.user().services.spotify.accessToken}`
+		},
+		body: JSON.stringify({
+		})
+	}).then(function(response) {
+		return response.json()
+	}).then(res => {
+		console.log(res)
+	})
+
 	return fetch(`https://api.spotify.com/v1/me/player/play`, {
 		method: 'PUT',
 		headers: {
@@ -44,6 +62,38 @@ function playTrack(trackId) {
 	.then(function(response) {
 		return response.json()
 	})
+}
+
+function getTrackAudioAnalysis(trackId) {
+	let track = Tracks.findOne({ _id: trackId });
+
+	if(!track) throw new Error("track wasn't found in database, although we should already have it")
+
+	var audioAnalysis = track.audioAnalysis;
+	
+	return new Promise((resolve, reject) => {
+		if(!audioAnalysis) {
+			refreshOauthTokenMaybe()
+			fetch(`https://api.spotify.com/v1/audio-analysis/${trackId}`, {
+				method: 'GET',
+				headers: {
+					'Authorization': `Bearer ${Meteor.user().services.spotify.accessToken}`
+				}
+			})
+			.then(function(response) {
+				return response.json()
+			}).then(audioAnalysis => {
+				if(audioAnalysis.error) reject(audioAnalysis);
+
+				Tracks.update({ _id: trackId }, { $set: {
+					audioAnalysis,
+				}})
+				resolve(audioAnalysis)
+			})
+		} else {
+			resolve(audioAnalysis);
+		}
+	});
 }
 
 function refreshingOauthFixesError(error) {
@@ -76,7 +126,7 @@ function refreshOauthStupidSillyOauth(refresh_token) {
 					'services.spotify.accessToken': accessToken,
 				},
 				$inc: {
-					'services.spotify.expiresAt': +(new Date) + 1000*res.data.expires_in
+					'services.spotify.expiresAt': +(new Date) + res.data.expires_in
 				}
 			})
 
@@ -115,7 +165,6 @@ Meteor.startup(() => {
 
 				// Remove tracks removed from playlist
 				// console.log(playlist)
-				console.log(playlist.images)
 				let currentPlaylistTracks = playlist.items.map(item => item.track.id);
 				Tracks.remove({
 					playlist: TLDM_PLAYLIST_ID, 
@@ -169,14 +218,48 @@ Meteor.startup(() => {
 				// } else {
 				// 	throw new Error(res.error.message);
 				// }
-				throw new Error(res);
+				// throw new Error(res);
 			}).catch(err => {
-				console.error(err)
+				console.error(JSON.stringify(err))
 			})
 		},
 
 		getLatestTrack: function() {
 			return Tracks.findOne({ playlist: TLDM_PLAYLIST_ID }, {sort: { $natural : 1 }});
+		},
+
+		getTrackAudioAnalysis: function(trackId) {
+			return getTrackAudioAnalysis(trackId)
+		},
+
+		checkUserPermissionsUpToDate: function() {
+			let lastPermissionsUpdate = Meteor.user().lastPermissionsUpdate;
+			if(lastPermissionsUpdate != LAST_UPDATE_TO_PERMISSIONS) {
+				return false;
+			} else {
+				return true;
+			}
+		},
+
+		updateUserPermissions: function() {
+			Meteor.users.update({ _id: Meteor.userId() }, { $set: {
+				'lastPermissionsUpdate': LAST_UPDATE_TO_PERMISSIONS
+			}})
+		},
+
+		getListeningHistory(after, before) {
+			let params = "";
+			if(after) params = `after=${after}`;
+			if(before) params = `before=${before}`;
+			
+			return fetch(`https://api.spotify.com/v1/me/player/recently-played?${params}`, {
+				headers: {
+					'Authorization': `Bearer ${Meteor.user().services.spotify.accessToken}`
+				}
+			})
+			.then(function(response) {
+				return response.json()
+			})
 		}
 	})
 
