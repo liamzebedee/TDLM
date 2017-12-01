@@ -3,7 +3,7 @@ TDLM
 
 ![Desktop](https://i.imgur.com/uGRz2o8.png)
 
-Beautiful collab Spotify playlists, written using Meteor.
+Beautiful collab Spotify playlists, written using Meteor, ES6 and Bootstrap 4.
 
  - Responsive
  - 👔 Transitions, 🌈 colour and everything nice
