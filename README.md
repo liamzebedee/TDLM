@@ -1,3 +1,8 @@
+TDLM
+====
+
+![Desktop](https://i.imgur.com/uGRz2o8.png)
+
 Beautiful collab Spotify playlists, written using Meteor.
 
  - Responsive
@@ -6,8 +11,6 @@ Beautiful collab Spotify playlists, written using Meteor.
  - Soundcloud-style waveform in the mix
  - 🔒 Secure
  - 🛀 Clean JS code
-
-![Desktop](https://i.imgur.com/uGRz2o8.png)
 
 ![Mobile](https://i.imgur.com/r3fGRJ0.png)
 
