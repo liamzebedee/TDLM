@@ -13,7 +13,9 @@ const SPOTIFY_SECRET_KEY = Meteor.settings.SPOTIFY_SECRET_KEY;
 const LAST_UPDATE_TO_PERMISSIONS = 1511966403842;
 
 function refreshOauthTokenMaybe() {
-	refreshOauthStupidSillyOauth(Meteor.user().services.spotify.refreshToken)
+	refreshOauthStupidSillyOauth(Meteor.user().services.spotify.refreshToken).then(err => {
+		if(err) console.error(err)
+	})
 	
 	// let timeLeft = new Date(Meteor.user().services.spotify.expiresAt - new Date);
 	// if(timeLeft.getMinutes() < 20) {
@@ -64,7 +66,7 @@ function playTrack(trackId) {
 	})
 }
 
-function getTrackAudioAnalysis(trackId) {
+function getTrackAudioAnalysisSegments(trackId) {
 	let track = Tracks.findOne({ _id: trackId });
 
 	if(!track) throw new Error("track wasn't found in database, although we should already have it")
@@ -88,18 +90,13 @@ function getTrackAudioAnalysis(trackId) {
 				Tracks.update({ _id: trackId }, { $set: {
 					audioAnalysis,
 				}})
-				resolve(audioAnalysis)
+				resolve(audioAnalysis.segments)
 			})
 		} else {
-			resolve(audioAnalysis);
+			resolve(audioAnalysis.segments);
 		}
 	});
 }
-
-function refreshingOauthFixesError(error) {
-	return error == 'The access token expired';
-}
-
 
 function refreshOauthStupidSillyOauth(refresh_token) {
 	return new Promise((resolve, reject) => {
@@ -136,6 +133,9 @@ function refreshOauthStupidSillyOauth(refresh_token) {
 }
 
 Meteor.startup(() => {
+	if(SPOTIFY_SECRET_KEY === undefined || SPOTIFY_CLIENT_ID === undefined) {
+		throw new Error("Important things are undefined")
+	}
 	// Tracks.remove({})
 
 	ServiceConfiguration.configurations.update(
@@ -150,7 +150,10 @@ Meteor.startup(() => {
 	);
 
 	Meteor.publish('playlist-tracks', function() {
-		return Tracks.find({ playlist: TLDM_PLAYLIST_ID }, { sort: { votes: -1 } })
+		return Tracks.find({ playlist: TLDM_PLAYLIST_ID }, {
+			sort: { votes: -1 },
+			fields: { audioAnalysis: 0 }
+		})
 	})
 
 	Meteor.methods({
@@ -229,7 +232,7 @@ Meteor.startup(() => {
 		},
 
 		getTrackAudioAnalysis: function(trackId) {
-			return getTrackAudioAnalysis(trackId)
+			return getTrackAudioAnalysisSegments(trackId)
 		},
 
 		checkUserPermissionsUpToDate: function() {

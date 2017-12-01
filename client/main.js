@@ -68,8 +68,8 @@ function changeBackgroundBasedOnDominantColourOfLatestTrack() {
 			let latestTrack = res;
 			if(latestTrack.item.track.album.images.length) {
 				let img = new Image;
-				img.src = latestTrack.item.track.album.images[1].url;
 				img.crossOrigin = "Anonymous";
+				img.src = latestTrack.item.track.album.images[1].url;
 
 				img.onload = () => {
 					var colorThief = new ColorThief();
@@ -131,13 +131,13 @@ Template.leaderboard.helpers({
 	}
 })
 
-const SECRET_DEVMODE_FEATURES = location.hash == '#dev';
+const SECRET_DEVMODE_FEATURES = location.hash === '#dev';
 
 
 var waveformNode = null;
-function renderWaveform(data) {
+function renderWaveform(segments) {
 	var lastEl = null;
-	let segmentsData = data.segments.map(seg => [seg.loudness_start, seg.loudness_max]).filter((el, i, arr) => {
+	let segmentsData = segments.map(seg => [seg.loudness_start, seg.loudness_max]).filter((el, i, arr) => {
 		if(i % 2) return false;
 		if(i % 3) return false;
 		return true;
@@ -230,7 +230,9 @@ function renderWaveform(data) {
 
 
 Template.track.events({
-	'click .track-name'(event, instance) {
+	'click .show-ondesktop .track-name'(event, instance) {
+		if(!SECRET_DEVMODE_FEATURES) return;
+
 		let trackId = instance.data._id;
 		Meteor.call('getTrackAudioAnalysis', trackId, (err, analysis) => {
 			if(err) throw new Error(err);
@@ -247,7 +249,16 @@ Template.track.events({
 		Meteor.call('downvote', trackId);
 		event.stopPropagation();
 	},
-	'click .play-btn'(event, instance) {
+	'click .track .show-on-mobile'(event, instance) {
+		let trackUri = instance.data.item.track.uri;
+
+		var colorThief = new ColorThief();
+		let domColourRgb = colorThief.getColor(instance.find('.track-album'));
+		Session.set('bgcolorFromTrackImg', `rgb(${domColourRgb[0]}, ${domColourRgb[1]}, ${domColourRgb[2]})`);
+
+		Meteor.call('playSongOnUsersDevice', trackUri)
+	},
+	'click .show-on-desktop .play-btn'(event, instance) {
 		let trackUri = instance.data.item.track.uri;
 
 		var colorThief = new ColorThief();

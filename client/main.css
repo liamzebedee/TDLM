@@ -1,3 +1,8 @@
+.container-fluid {
+    padding-left: 0px;
+    padding-right: 0px;
+}
+
 .dp {
     width: 42px;
     height: 42px;
@@ -33,8 +38,7 @@ h1 {
 }
 
 .vote-btn {
-    font-size: 22px;
-    /* background-clip: content-box; */
+    font-size: 1.2rem;
     background: transparent;
 }
 
@@ -147,7 +151,7 @@ h1 {
     cursor: pointer;
 }
 
-.vote-info {
+.vote-info-ctn {
     width: 85px;
 }
 
@@ -157,19 +161,67 @@ h1 {
     box-shadow: #eee 1px 1px 2px;
 }
 
-.header > .content-wrap {
-    margin: 0% 10%;
-    padding: 0.5em 0;
+
+.show-on-mobile {
+    display: inherit;
 }
-.the-meat > .content-wrap {
-    margin: 0% 25%;
+.show-on-desktop {
+    display: none;
+}
+
+@media (max-width: 991px) {
+    body {
+        -webkit-overflow-scrolling: touch;
+        overflow-y: scroll;
+    }
+    .tracks > .track {
+        padding: 0.75rem .5rem;
+    }
+
+    .track-album-ctn {
+        margin-right: 0.5rem;
+    }
+
+    header h1 {
+        transition: color 200ms;
+    }
+}
+
+@media (min-width: 992px) {
+
+    .header .content-wrap {
+        margin: 0% 10%;
+        padding: 0.5em 0;
+    }
+    .the-meat > .content-wrap {
+        margin: 0% 25%;
+    }
+
+    .the-meat.list-group {
+        padding-top: 2rem;
+        padding-bottom: 3rem;
+    }
+
+    .track-album-ctn,
+    .track-details-ctn,
+    .play-ctn,
+    .vote-info-ctn {
+        padding: 0.5rem !important;
+    }
+
+    .show-on-mobile {
+        display: none;
+    }
+
+    .show-on-desktop {
+        display: inherit;
+    }
+
 }
 
 .the-meat.list-group {
     background: #e26b6b;
     transition: background 200ms;
-    padding-top: 2em;
-    padding-bottom: 3em;
 }
 
 .the-meat .content-wrap li:nth-child(1) {
@@ -189,6 +241,8 @@ canvas {
 .track-name {
     cursor: pointer;
 }
+
+
 
 /*
   .vote-ctn:before {
